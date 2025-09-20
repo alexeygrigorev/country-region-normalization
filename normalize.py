@@ -140,6 +140,7 @@ def process_csv(input_path):
     for col in country_columns:
         print(f"Normalizing column: {col}")
         normalized_values = []
+        region_values = []
         
         for value in df[col]:
             normalized, region, status = normalize_country(value, ALIAS)
@@ -150,8 +151,17 @@ def process_csv(input_path):
                     unmapped_counts[cleaned_value] += 1
             
             normalized_values.append(normalized if normalized else value)
+            region_values.append(region if region else None)
         
+        # Update the country column with normalized values
         df_normalized[col] = normalized_values
+        
+        # Add a new region column (insert it right after the country column)
+        col_index = df_normalized.columns.get_loc(col)
+        region_col_name = f"{col}_region"
+        
+        # Insert the region column after the country column
+        df_normalized.insert(col_index + 1, region_col_name, region_values)
     
     return df_normalized, unmapped_counts
 
